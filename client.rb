@@ -22,6 +22,10 @@ class XDK
 			start(NOISE, NOISE_RANGE, sleep_time)
 		end
 	end
+
+	def stop_sensor(sensor_type)
+			sensor_type == NOISE ? @noise_thread.kill : @temperature_thread.kill
+	end
 		
 	private
 	def start(type, values_range, sleep_time)
@@ -33,6 +37,7 @@ class XDK
 				sleep(sleep_time)
 			}
 		}
+		type == NOISE ? @noise_thread = thread : @temperature_thread = thread
 	end
 end
 
