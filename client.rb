@@ -33,7 +33,7 @@ class XDK
 			loop {
 				value = rand(values_range).to_s
 				timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-				@socket.puts(type.to_s + '#' + value + '#' + timestamp)
+				@socket.puts(type.to_s + ': ' + value + '  (' + timestamp + ' | ' + POSITION + ')')
 				sleep(sleep_time)
 			}
 		}
