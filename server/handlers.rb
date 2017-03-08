@@ -13,8 +13,17 @@ module Handlers
 				client_id = (db.execute 'select count(*) from xdks')[0][0] # Atribui id ao cliente
 
 				db.execute 'insert into xdks values(?,?,?);', client_id.to_s,'foobar',1
-				
+
 				client_socket.puts client_id.to_s # Envia ao cliente o id atribuido
+
+				while line = cs.gets
+					#puts cs.gets
+					values = line.chomp!.split('#')
+
+					db.execute 'insert into readings values(?,?,?,?);', values[0],values[1],values[2],client_id
+				end
+
+				cs.close
 
 			}
 		end
