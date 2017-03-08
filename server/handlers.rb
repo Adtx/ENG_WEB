@@ -9,10 +9,11 @@ module Handlers
 
 		def initialize(client_socket, database)
 			super(client_socket, database) {|cs, db|
-				client_info = client_socket.gets
-				loop{
-					puts cs.gets
-				}
+				
+				client_id = (db.execute 'select count(*) from xdks')[0][0] # Atribui id ao cliente
+
+				client_socket.puts client_id.to_s # Envia ao cliente o id atribuido
+
 			}
 		end
 	end
