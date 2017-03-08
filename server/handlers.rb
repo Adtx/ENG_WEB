@@ -38,7 +38,10 @@ module Handlers
 					input = Menu.get_input
 					case input[0]
 					when Menu::SHOW_CONNECTED
-						puts 'procurar na tabela dos xdks'
+						puts 'ID 	LOCATION'
+						db.execute "SELECT id,location FROM xdks where status==#{CONNECTED}" do |row|
+	  						puts "- #{row[0]} 	#{row[1]}"
+						end
 					when Menu::SHOW_READINGS
 						puts "procurar leituras do xdk #{input[1]} na tabela 'leituras'"
 					end
