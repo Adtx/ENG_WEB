@@ -43,7 +43,10 @@ module Handlers
 	  						puts "- #{row[0]} 	#{row[1]}"
 						end
 					when Menu::SHOW_READINGS
-						puts "procurar leituras do xdk #{input[1]} na tabela 'leituras'"
+						puts 'LOCATION 	  VALUE    TIMESTAMP'
+						db.execute "SELECT location,value,timestamp FROM readings where xdk_id==#{input[1]}" do |row|
+	  						puts "- #{row[0]} 	  #{row[1]} 	#{row[2]}"
+						end
 					end
 					Menu.clear
 				}		
