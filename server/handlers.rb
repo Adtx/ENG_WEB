@@ -14,6 +14,8 @@ module Handlers
 
 				db.execute 'insert into xdks values(?,?,?);', client_id.to_s,'foobar',1
 
+				print "\n\n[Client \##{client_id} is now connected!]\n\n"
+
 				client_socket.puts client_id.to_s # Envia ao cliente o id atribuido
 
 				while line = cs.gets
@@ -25,6 +27,7 @@ module Handlers
 
 				cs.close
 
+				print "\n\n[Client \##{client_id} is now disconnected!]\n\n"
 			}
 		end
 	end

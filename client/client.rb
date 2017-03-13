@@ -18,6 +18,8 @@ threads = []
 threads << xdk.start_sensor(XDK::TEMPERATURE,TEMP_SENSOR_INTERVAL)
 sleep(1) # Impede que os 2 sensores escrevam no socket ao mesmo tempo
 threads << xdk.start_sensor(XDK::NOISE,NOISE_SENSOR_INTERVAL)
-threads.each {|t| t.join}
+
+puts "\n(Any key) to exit"
+gets
 
 socket.close
