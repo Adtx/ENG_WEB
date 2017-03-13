@@ -28,6 +28,8 @@ module Handlers
 
 				cs.close
 
+				db.execute "update xdks set status=#{DISCONNECTED} where id=\'#{client_id.to_s}\';"
+
 				print "\n\n[Client \##{client_id} is now disconnected! (\# readings: #{readings})]\n\n"
 			}
 		end
