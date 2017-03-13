@@ -18,16 +18,17 @@ module Handlers
 
 				client_socket.puts client_id.to_s # Envia ao cliente o id atribuido
 
+				readings = 0
 				while line = cs.gets
 					#puts cs.gets
 					values = line.chomp!.split('#')
-
+					readings += 1;
 					db.execute 'insert into readings values(?,?,?,?);', values[0],values[1],values[2],client_id
 				end
 
 				cs.close
 
-				print "\n\n[Client \##{client_id} is now disconnected!]\n\n"
+				print "\n\n[Client \##{client_id} is now disconnected! (\# readings: #{readings})]\n\n"
 			}
 		end
 	end
