@@ -10,13 +10,17 @@ module Handlers
 		def initialize(client_socket, database)
 			super(client_socket, database) {|cs, db|
 				
-				client_id = (db.execute 'select count(*) from xdks')[0][0] # Atribui id ao cliente
+				client_id = cs.gets.chomp!
 
-				db.execute 'insert into xdks values(?,?,?);', client_id.to_s,'foobar',1
+				if client_id == '' # Se for a primeira vez que o cliente se liga
+					client_id = (db.execute 'select count(*) from xdks')[0][0] # Atribui id ao cliente
+					db.execute 'insert into xdks values(?,?,?);', client_id.to_s, 'foobar', CONNECTED # Adiciona cliente a base de dados
+					cs.puts client_id # Envia ao cliente o id atribuido
+				else	
+					db.execute 'update xdks set status = ? where id = ?', CONNECTED, client_id.to_s # Atualiza o estado do cliente na BD para CONNECTED
+				end
 
 				print "\n\n[Client \##{client_id} is now connected!]\n\n"
-
-				client_socket.puts client_id.to_s # Envia ao cliente o id atribuido
 
 				readings = 0
 				while line = cs.gets
@@ -25,7 +29,6 @@ module Handlers
 					readings += 1;
 					db.execute 'insert into readings values(?,?,?,?);', values[0],values[1],values[2],client_id
 				end
-
 				cs.close
 
 				db.execute "update xdks set status=#{DISCONNECTED} where id=\'#{client_id.to_s}\';"
