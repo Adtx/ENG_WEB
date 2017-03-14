@@ -7,10 +7,15 @@ TEMP_SENSOR_INTERVAL = 30
 NOISE_SENSOR_INTERVAL = 1
 POSITION = "41º32'46.90N8º25'31.93W"
 
-
 socket = TCPSocket.open(HOST, PORT)
 
-print "ID: #{socket.gets}"
+File.exist?('cookie.txt') ? (f = File.open('cookie.txt','r'); id = f.gets; f.close) : (id = '')
+
+socket.puts id # Diz ao servidor se ja tem ou nao id
+
+if id == '' then id = socket.gets.chomp!; f = File.new('cookie.txt','w'); f.print id; f.close end # Se ainda nao tem id, recebe um do servidor e guarda-o num cookie
+
+puts "ID: #{id}"
 
 xdk = XDK.new(socket)
 
