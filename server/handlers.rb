@@ -17,7 +17,8 @@ module Handlers
 					db.execute 'insert into xdks values(?,?,?);', client_id.to_s, 'foobar', CONNECTED # Adiciona cliente a base de dados
 					cs.puts client_id # Envia ao cliente o id atribuido
 				else	
-					db.execute 'update xdks set status = ? where id = ?', CONNECTED, client_id.to_s # Atualiza o estado do cliente na BD para CONNECTED
+					# Atualiza o estado do cliente na BD para CONNECTED
+					db.execute "update xdks set status=#{CONNECTED} where id=\'#{client_id}\';"
 				end
 
 				print "\n\n[Client \##{client_id} is now connected!]\n\n"
@@ -31,7 +32,8 @@ module Handlers
 				end
 				cs.close
 
-				db.execute "update xdks set status=#{DISCONNECTED} where id=\'#{client_id.to_s}\';"
+				# Atualiza o estado do cliente na BD para DISCONNECTED
+				db.execute "update xdks set status=#{DISCONNECTED} where id=\'#{client_id}\';"
 
 				print "\n\n[Client \##{client_id} is now disconnected! (\# readings: #{readings})]\n\n"
 			}
