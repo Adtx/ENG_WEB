@@ -2,7 +2,6 @@ require 'socket'
 require 'sqlite3'
 require_relative 'handlers'
 
-
 server_socket = TCPServer.new 5555
 
 db = SQLite3::Database.new 'iot.db'

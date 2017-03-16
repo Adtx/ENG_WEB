@@ -6,6 +6,8 @@ class XDK
     TEMPERATURE = 0
     NOISE = 1
 
+    POSITION = "41º32'46.90N8º25'31.93W"
+
 	def initialize(socket)
 		@socket = socket
 		@temperature_thread = nil
@@ -15,9 +17,9 @@ class XDK
 	def start_sensor(sensor_type, sleep_time)
 		case sensor_type
 		when TEMPERATURE
-			start(TEMPERATURE, TEMPERATURE_RANGE, sleep_time)
+			start('TEMP ', TEMPERATURE_RANGE, sleep_time)
 		when NOISE
-			start(NOISE, NOISE_RANGE, sleep_time)
+			start('NOISE', NOISE_RANGE, sleep_time)
 		end
 	end
 
@@ -31,7 +33,7 @@ class XDK
 			loop {
 				value = rand(values_range).to_s
 				timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-				@socket.puts(type.to_s + ': ' + value + '  (' + timestamp + ' | ' + POSITION + ')')
+				@socket.puts(type + '#' + value + '#' + POSITION + '#' + timestamp)
 				sleep(sleep_time)
 			}
 		}

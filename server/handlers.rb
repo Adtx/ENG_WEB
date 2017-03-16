@@ -13,8 +13,8 @@ module Handlers
 				client_id = cs.gets.chomp!
 
 				if client_id == '' # Se for a primeira vez que o cliente se liga
-					client_id = (db.execute 'select count(*) from xdks')[0][0] # Atribui id ao cliente
-					db.execute 'insert into xdks values(?,?,?);', client_id.to_s, 'foobar', CONNECTED # Adiciona cliente a base de dados
+					client_id = (db.execute 'select count(*) from xdks;')[0][0] # Atribui id ao cliente
+					db.execute 'insert into xdks values(?,NULL,?);', client_id.to_s, CONNECTED # Adiciona cliente a base de dados
 					cs.puts client_id # Envia ao cliente o id atribuido
 				else	
 					# Atualiza o estado do cliente na BD para CONNECTED
@@ -22,13 +22,13 @@ module Handlers
 				end
 
 				print "\n\n[Client \##{client_id} is now connected!]\n\n"
-
+	
 				readings = 0
 				while line = cs.gets
-					#puts cs.gets
 					values = line.chomp!.split('#')
 					readings += 1;
-					db.execute 'insert into readings values(?,?,?,?);', values[0],values[1],values[2],client_id
+					db.execute 'insert into readings values(?,?,?,?,?);', client_id.to_s, values[0], values[1], values[2], values[3]
+					db.execute "update xdks set location=? where id=?;", values[2], client_id.to_s
 				end
 				cs.close
 
@@ -50,13 +50,13 @@ module Handlers
 					case input[0]
 					when Menu::SHOW_CONNECTED
 						puts 'ID 	LOCATION'
-						db.execute "SELECT id,location FROM xdks where status==#{CONNECTED}" do |row|
-	  						puts "- #{row[0]} 	#{row[1]}"
+						db.execute "SELECT id,location,status FROM xdks where status==#{CONNECTED}" do |row|
+	  						puts "#{row[0]}\t#{row[1]}\t#{row[2]}"
 						end
 					when Menu::SHOW_READINGS
-						puts 'LOCATION 	  VALUE    TIMESTAMP'
-						db.execute "SELECT location,value,timestamp FROM readings where xdk_id==#{input[1]}" do |row|
-	  						puts "- #{row[0]} 	  #{row[1]} 	#{row[2]}"
+						puts "ID\tTYPE\tVALUE\tLOCATION\tTIMESTAMP"
+						db.execute "SELECT xdk_id,type,value,location,timestamp FROM readings where xdk_id==#{input[1]}"  do |row|
+	  						puts "#{row[0]}\t#{row[1]}\t#{row[2]}\t#{row[3]}\t#{row[4]}"
 						end
 					end
 					Menu.clear
