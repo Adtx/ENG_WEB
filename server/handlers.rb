@@ -1,5 +1,4 @@
 module Handlers
-
 	require_relative 'menu'
 
 	CONNECTED = 1
@@ -7,8 +6,11 @@ module Handlers
 
 	class ClientHandler < Thread
 
-		def initialize(client_socket, database)
-			super(client_socket, database) {|cs, db|
+		attr_writer :notify_admin, :admin_notifications, :admin_notification_thread
+
+		def initialize(client_socket, database, client_handlers, mutex)
+			@notify_admin = false;
+			super(client_socket, database, client_handlers, mutex) {|cs, db, ch, mutex|
 				
 				client_id = cs.gets.chomp!
 
@@ -21,14 +23,20 @@ module Handlers
 					db.execute "update xdks set status=#{CONNECTED} where id=\'#{client_id}\';"
 				end
 
+				ch[client_id.to_i] = self
+
 				print "\n\n[Client \##{client_id} is now connected!]\n\n"
 	
 				readings = 0
 				while line = cs.gets
 					values = line.chomp!.split('#')
 					readings += 1;
-					db.execute 'insert into readings values(?,?,?,?,?);', client_id.to_s, values[0], values[1], values[2], values[3]
-					db.execute "update xdks set location=? where id=?;", values[2], client_id.to_s
+
+					if @notify_admin then mutex.synchronize{@admin_notifications << values.join('    ')}; @admin_notification_thread.wakeup; end
+
+					db.execute 'insert into readings values(?,?,?,?,?);', client_id.to_s, values[1], values[2], values[3], values[4]
+					db.execute "update xdks set location=? where id=?;", values[3], client_id.to_s
+					#puts "ATUALIZEI XDK POSITION = #{values[3]}"
 				end
 				cs.close
 
@@ -41,26 +49,37 @@ module Handlers
 	end
 
 	class AdminHandler < Thread
+		def initialize(database, client_handlers, mutex)
+			super(database, client_handlers, mutex) {|db, ch, mutex|
 
-		def initialize(database)
-			super(database) {|db|
-				loop {
+				loop do
 					Menu.display
 					input = Menu.get_input
 					case input[0]
 					when Menu::SHOW_CONNECTED
-						puts 'ID 	LOCATION'
+						puts "ID         LOCATION             STATUS"
 						db.execute "SELECT id,location,status FROM xdks where status==#{CONNECTED}" do |row|
-	  						puts "#{row[0]}\t#{row[1]}\t#{row[2]}"
+	  						puts "#{row[0]}    #{row[1]}    #{row[2]}"
 						end
 					when Menu::SHOW_READINGS
-						puts "ID\tTYPE\tVALUE\tLOCATION\tTIMESTAMP"
+						puts "ID   TYPE   VALUE          LOCATION                TIMESTAMP"
 						db.execute "SELECT xdk_id,type,value,location,timestamp FROM readings where xdk_id==#{input[1]}"  do |row|
-	  						puts "#{row[0]}\t#{row[1]}\t#{row[2]}\t#{row[3]}\t#{row[4]}"
+	  						puts "#{row[0]}    #{row[1]}    #{row[2]}    #{row[3]}    #{row[4]}"
+						end
+					when Menu::SHOW_REAL_TIME
+						readings = []
+						t = Thread.new {
+							puts 'ID   TYPE    VALUE          LOCATION               TIMESTAMP'
+							loop { while readings.empty? do Thread.stop end; readings.each {|r| puts r}; mutex.synchronize{readings.clear}}
+						}
+						if ch.empty? then puts 'No clients connected'
+						else
+							ch[input[1].to_i].admin_notifications = readings; ch[input[1].to_i].admin_notification_thread = t
+							ch[input[1].to_i].notify_admin = true; gets; t.kill; ch[input[1].to_i].notify_admin = false
 						end
 					end
 					Menu.clear
-				}		
+				end	
 			}
 		end
 	end

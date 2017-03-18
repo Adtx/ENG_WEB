@@ -8,8 +8,9 @@ class XDK
 
     POSITION = "41º32'46.90N8º25'31.93W"
 
-	def initialize(socket)
+	def initialize(socket, id)
 		@socket = socket
+		@id = id
 		@temperature_thread = nil
 		@noise_thread = nil
 	end
@@ -33,7 +34,7 @@ class XDK
 			loop {
 				value = rand(values_range).to_s
 				timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-				@socket.puts(type + '#' + value + '#' + POSITION + '#' + timestamp)
+				@socket.puts(@id + '#' + type + '#' + value + '#' + POSITION + '#' + timestamp)
 				sleep(sleep_time)
 			}
 		}

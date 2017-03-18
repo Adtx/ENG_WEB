@@ -21,8 +21,9 @@ class Menu
 
     SHOW_CONNECTED = '1'
     SHOW_READINGS = '2'
+    SHOW_REAL_TIME = '3'
 
-	MENU = "\n\nChoose an option (1 or 2)\n\n1: Show connected XDKs\n2: Show readings\n\n";
+	MENU = "\n\nChoose an option (1..3)\n\n1: Show connected XDKs\n2: Show readings\n3: Show readings in real time\n\n";
 	
 	def self.display
 		print MENU
@@ -40,7 +41,7 @@ class Menu
 
 		user_input << input
 
-		if input == SHOW_READINGS
+		if input == SHOW_READINGS || input == SHOW_REAL_TIME
 			print 'XDK id: '
 			input = gets.chomp!
 			user_input << input

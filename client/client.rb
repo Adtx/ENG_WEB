@@ -15,7 +15,7 @@ socket.puts id # Diz ao servidor se ja tem ou nao id
 if id == '' then id = socket.gets.chomp!; f = File.new('cookie.txt','w'); f.print id; f.close end # Se ainda nao tem id, recebe um do servidor e guarda-o num cookie
 
 puts "ID: #{id}"
-xdk = XDK.new(socket)
+xdk = XDK.new(socket, id)
 
 xdk.start_sensor(XDK::TEMPERATURE,TEMP_SENSOR_INTERVAL)
 sleep(1) # Impede que os 2 sensores escrevam no socket ao mesmo tempo
