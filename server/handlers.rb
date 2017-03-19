@@ -57,9 +57,10 @@ module Handlers
 					input = Menu.get_input
 					case input[0]
 					when Menu::SHOW_CONNECTED
-						puts "ID         LOCATION             STATUS"
+						puts "ID\tLOCATION\t\t\tSTATUS"
 						db.execute "SELECT id,location,status FROM xdks where status==#{CONNECTED}" do |row|
-	  						puts "#{row[0]}    #{row[1]}    #{row[2]}"
+							status = ''+('DIS'*(1-row[2]))+'CONNECTED'
+	  						puts "#{row[0]}\t#{row[1]}\t#{status}"
 						end
 					when Menu::SHOW_READINGS
 						puts "ID   TYPE   VALUE          LOCATION                TIMESTAMP"
